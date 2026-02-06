@@ -1,0 +1,30 @@
+type Query {
+    # Fetch all nodes in graph
+    nodes: [WeaveNode]!
+    # Fetch a single node by Id
+    nodeById(id: ID!): WeaveNode
+}
+
+type Mutation {
+    #The action to create a new thought
+    createNode(title: String!, type: NodeType!, description: String): WeaveNode!
+}
+
+type WeaveNode {
+    id: ID!
+    title: String!
+    description: String
+    type: NodeType!
+    tags:[String]
+    createdAt: String
+    updatedAt: String
+}
+
+enum NodeType {
+    AXIOM
+    HYPOTHESIS
+    DERIVATION
+    METAPHOR
+    CITATION
+    OBJECTION
+}

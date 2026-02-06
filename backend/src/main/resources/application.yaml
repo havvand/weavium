@@ -1,3 +1,32 @@
 spring:
   application:
     name: backend
+
+  docker:
+    compose:
+      file: backend/compose.yaml
+      lifecycle-management: start-and-stop # Automatically start/stop containers
+
+    # Neo4j Database Configuration
+  neo4j:
+    uri: bolt://localhost:7687
+    authentication:
+      username: neo4j
+      password: password
+
+    # GraphQL Configuration
+  graphql:
+    graphiql:
+      enabled: true      # Enables the interactive editor at http://localhost:8080/graphiql
+      path: /graphiql
+    schema:
+      printer:
+        enabled: true
+
+server:
+  port: 8080
+
+logging:
+  level:
+    org.springframework.data.neo4j: INFO
+    org.springframework.web: INFO
