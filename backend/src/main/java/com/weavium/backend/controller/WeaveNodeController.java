@@ -8,11 +8,12 @@ import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
+@CrossOrigin("*")
 @Controller
 @RequiredArgsConstructor // Lombok generates cons for final fields
 public class WeaveNodeController {

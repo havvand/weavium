@@ -1,26 +1,41 @@
-package com.weavium.backend.config;
+/*package com.weavium.backend.config;
 
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.core.Ordered;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
+
+import java.util.List;
 
 @Configuration
 public class WebConfig {
-    @Bean
-    public WebMvcConfigurer corsConfigurer(){
-        return new WebMvcConfigurer() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/graphql/**") // ** is Spring path matching for recursive wildcard = graphql/sub/path
-                        .allowedOrigins("http://localhost:5173")
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                        .allowedHeaders("*");
 
-                registry.addMapping("/graphiql/**")
-                        .allowedOrigins("http://localhost:5173")
-                        .allowedHeaders("*");
-            }
-        };
+    @Bean
+    public FilterRegistrationBean<CorsFilter> corsFilter() {
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        CorsConfiguration config = new CorsConfiguration();
+
+        // 1. Allow specific origins (Frontend)
+        config.setAllowedOriginPatterns(List.of("http://localhost:5173", "http://127.0.0.1:5173"));
+
+        // 2. Allow Credentials (cookies, auth headers)
+        config.setAllowCredentials(true);
+
+        // 3. Allow all headers
+        config.addAllowedHeader("*");
+
+        // 4. Allow all methods (GET, POST, PUT, DELETE, OPTIONS, HEAD)
+        config.addAllowedMethod("*");
+
+        source.registerCorsConfiguration("/**", config);
+
+        // 5. Wrap in FilterRegistrationBean to force execution order
+        FilterRegistrationBean<CorsFilter> bean = new FilterRegistrationBean<>(new CorsFilter(source));
+        // This is the magic line: Run BEFORE Spring Security
+        bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
+        return bean;
     }
-}
+}*/

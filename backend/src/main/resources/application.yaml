@@ -28,5 +28,12 @@ server:
 
 logging:
   level:
-    org.springframework.data.neo4j: INFO
-    org.springframework.web: INFO
+    logging:
+      level:
+        org.springframework.data.neo4j: INFO
+        org.springframework.web: INFO
+        # Show me why Security is rejecting requests:
+        org.springframework.security: DEBUG
+        # Show me CORS decisions:
+        org.springframework.web.cors: DEBUG
+        org.springframework.web.servlet.handler.AbstractHandlerMapping: DEBUG
