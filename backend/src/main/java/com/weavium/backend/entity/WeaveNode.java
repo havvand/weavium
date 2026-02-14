@@ -1,17 +1,18 @@
 package com.weavium.backend.entity;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
+import org.springframework.data.neo4j.core.schema.Relationship;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 
 @Node("WeaveNode")  // Explicit naming of the node label in the Graph
@@ -30,7 +31,13 @@ public class WeaveNode {
 
     private NodeType type;
 
-    private List<String> tags = new ArrayList<>();
+    private Set<String> tags = new HashSet<>();
+
+
+    @Relationship(type = "LINKS_TO", direction = Relationship.Direction.OUTGOING)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private Set<WeaveLink> links = new HashSet<>();
 
     // Fields for audit (track changes)
     @CreatedDate

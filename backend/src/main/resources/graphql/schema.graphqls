@@ -8,6 +8,15 @@ type Query {
 type Mutation {
     #The action to create a new thought
     createNode(title: String!, type: NodeType!, description: String): WeaveNode!
+
+    linkNodes(sourceId: ID!, targetId: ID!, type: RelationshipType!): WeaveNode!
+}
+
+type WeaveLink {
+    id: ID!
+    type: RelationshipType!
+    weight: Float # GraphQL's Float is 64bit precision, so the Java pair is Double.
+    target: WeaveNode!
 }
 
 type WeaveNode {
@@ -27,4 +36,11 @@ enum NodeType {
     METAPHOR
     CITATION
     OBJECTION
+}
+
+enum RelationshipType {
+    SUPPORTS
+    CONTRADICTS
+    DERIVED_FROM
+    RELATED_TO
 }

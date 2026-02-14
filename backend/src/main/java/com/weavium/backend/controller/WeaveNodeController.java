@@ -1,6 +1,8 @@
 package com.weavium.backend.controller;
 
 import com.weavium.backend.entity.NodeType;
+import com.weavium.backend.entity.RelationshipType;
+import com.weavium.backend.entity.WeaveLink;
 import com.weavium.backend.entity.WeaveNode;
 import com.weavium.backend.repository.WeaveNodeRepository;
 import lombok.RequiredArgsConstructor;
@@ -39,5 +41,20 @@ public class WeaveNodeController {
         // Can add default tags here in the future
 
         return repository.save(node);
+    }
+
+    @MutationMapping
+    public WeaveNode linkNodes(@Argument UUID sourceId, @Argument UUID targetId, @Argument RelationshipType type) {
+        // Fetch both nodes
+        WeaveNode source = repository.findById(sourceId).orElseThrow(()->new RuntimeException("Source node not found"));
+        WeaveNode target = repository.findById(targetId).orElseThrow(()->new RuntimeException("Target node not found"));
+
+        // Create Link
+        WeaveLink link  = new WeaveLink(target, type);
+
+        // Add link to source
+        source.getLinks().add(link);
+
+        return repository.save(source);
     }
 }
