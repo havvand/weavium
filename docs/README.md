@@ -1,5 +1,5 @@
 <p align="center">
-<img margin="auto" height="300px" src="C:\Users\havva\personal_project\weavium\docs\WeaviumLogo.png" width="300px"/>
+<img margin="auto" height="300px" src="WeaviumLogo.png" width="300px"/>
 </p>
 
 Weavium: A Living Document for Evolving Thoughts
