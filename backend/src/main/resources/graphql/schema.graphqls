@@ -12,6 +12,17 @@ type Mutation {
     linkNodes(sourceId: ID!, targetId: ID!, type: RelationshipType!): WeaveNode!
 }
 
+type WeaveNode {
+    id: ID!
+    title: String!
+    description: String
+    type: NodeType!
+    tags:[String]
+    links:[WeaveLink]
+    createdAt: String
+    updatedAt: String
+}
+
 type WeaveLink {
     id: ID!
     type: RelationshipType!
@@ -19,26 +30,20 @@ type WeaveLink {
     target: WeaveNode!
 }
 
-type WeaveNode {
-    id: ID!
-    title: String!
-    description: String
-    type: NodeType!
-    tags:[String]
-    createdAt: String
-    updatedAt: String
-}
-
 enum NodeType {
+    THEORY
     AXIOM
+    EVIDENCE
     HYPOTHESIS
     DERIVATION
+    OBJECTION
     METAPHOR
     CITATION
-    OBJECTION
 }
 
 enum RelationshipType {
+    PROPOSES
+    EXPLORES
     SUPPORTS
     CONTRADICTS
     DERIVED_FROM
