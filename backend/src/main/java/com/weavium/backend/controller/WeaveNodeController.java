@@ -43,6 +43,20 @@ public class WeaveNodeController {
         return repository.save(node);
     }
 
+   @MutationMapping
+   public WeaveNode updateNode(@Argument UUID id, @Argument String title, @Argument String description, @Argument NodeType type) {
+        WeaveNode node = repository.findById(id).orElseThrow(()-> new RuntimeException("Node not found!"));
+        if (title != null) node.setTitle(title);
+        if (description != null) node.setDescription(description);
+        if (type != null) node.setType(type);
+        return repository.save(node);
+   }
+
+   public Boolean deleteNode(@Argument UUID id) {
+        repository.deleteById(id);
+        return true;
+   }
+
     @MutationMapping
     public WeaveNode linkNodes(@Argument UUID sourceId, @Argument UUID targetId, @Argument RelationshipType type) {
         // Fetch both nodes

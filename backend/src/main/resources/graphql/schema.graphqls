@@ -10,6 +10,9 @@ type Mutation {
     createNode(title: String!, type: NodeType!, description: String): WeaveNode!
 
     linkNodes(sourceId: ID!, targetId: ID!, type: RelationshipType!): WeaveNode!
+    #Edit and Delete mutations
+    updateNode(id: ID!, title: String, description: String, type: NodeType): WeaveNode!
+    deleteNode(id: ID!): Boolean
 }
 
 type WeaveNode {

@@ -1,7 +1,8 @@
-import {useMemo, useCallback, useRef} from 'react';
+import {useMemo, useCallback, useRef, useState} from 'react';
 import {useQuery} from "@apollo/client/react";
 import {gql} from "@apollo/client"
 import ForceGraph2D from 'react-force-graph-2d';
+import {NodeInspector} from "./utility/NodeInspector.jsx";
 
 const GET_NODES_FOR_GRAPH = gql`
     query GetNodesGraph {
@@ -9,6 +10,7 @@ const GET_NODES_FOR_GRAPH = gql`
             id
             title
             type
+            description
             links {
                 type
                 target {
@@ -41,8 +43,19 @@ const LINK_COLORS = {
     RELATED_TO: '#2196F3'
 };
 
+// HELPER: Truncate long strings for the canvas
+const MAX_LABEL_LENGTH = 22;
+const truncateText = (text) => {
+    if (!text) return "Unknown";
+    if (text.length <= MAX_LABEL_LENGTH) return text;
+    return text.substring(0, MAX_LABEL_LENGTH) + "...";
+};
+
+
 export function WeaveGraph() {
     const fgRef = useRef();
+    // NEW STATE: Track which node is currently clicked for the Inspection Panel
+    const [selectedNode, setSelectedNode] = useState(null);
     const { loading, error, data } = useQuery(GET_NODES_FOR_GRAPH);
 
     // Transform GraphQL Tree into Flat Graph Object using useMemo - performance
@@ -61,6 +74,7 @@ export function WeaveGraph() {
                 id: node.id,
                 name: node.title,
                 type: node.type,
+                description: node.description, // Pass description to the graph object
                 val: node.type === 'THEORY' ? 20 : 10
             });
 
@@ -87,16 +101,23 @@ export function WeaveGraph() {
     // Center camera on a node when clicked
     const handleNodeClick = useCallback(node => {
         if (fgRef.current) {
-            fgRef.current.centerAt(node.x, node.y, 1000);
+            const cameraOffsetX = 55;
+            fgRef.current.centerAt(node.x + cameraOffsetX, node.y, 1000);
             fgRef.current.zoom(8, 2000);
         }
+        // 2. Open the Inspection Panel
+        setSelectedNode(node);
     }, [fgRef]);
+
+    const handleBackgroundClick = useCallback(() => {
+        setSelectedNode(null);
+    }, []);
 
     if (loading) return <p> Simulating </p>
     if (error) return <p>Error loading graph: {error.message}</p>
 
     return (
-        <div style={{ border: '2px solid #2c3e50', borderRadius: '8px', overflow: 'hidden', height: '600px', backgroundColor: '#fcfcfc' }}>
+        <div style={{ position: 'relative', border: '2px solid #2c3e50', borderRadius: '8px', overflow: 'hidden', height: '600px', backgroundColor: '#fcfcfc' }}>
             <ForceGraph2D
                 ref={fgRef}
                 graphData={graphData}
@@ -108,14 +129,15 @@ export function WeaveGraph() {
                 linkDirectionalArrowLength={3.5}
                 linkDirectionalArrowRelPos={1}
                 onNodeClick={handleNodeClick}
+                onBackgroundClick={handleBackgroundClick} // Close panel when clicking empty space
+
 
                 // Custom canvas drawing to show text labels under the nodes
                 nodeCanvasObject={(node, ctx, globalScale) => {
-                    const label = node.name;
+                    const label = truncateText(node.name);
                     const fontSize = 12 / globalScale;
                     ctx.font = `${fontSize}px Sans-Serif`;
-                    const textWidth = ctx.measureText(label).width;
-                    const bckgDimensions = [textWidth, fontSize].map(n => n + fontSize * 0.2);
+                    //const bckgDimensions = [label, fontSize].map(n => n + fontSize * 0.2);
 
                     // Draw Node Circle
                     ctx.beginPath();
@@ -129,6 +151,12 @@ export function WeaveGraph() {
                     ctx.fillStyle = '#111';
                     ctx.fillText(label, node.x, node.y + (node.val / globalScale) + (fontSize));
                 }}
+            />
+
+            <NodeInspector
+                node={selectedNode}
+                onClose={() => setSelectedNode(null)}
+                nodeColors={NODE_COLORS}
             />
         </div>
     );
