@@ -52,6 +52,7 @@ public class WeaveNodeController {
         return repository.save(node);
    }
 
+    @MutationMapping
    public Boolean deleteNode(@Argument UUID id) {
         repository.deleteById(id);
         return true;

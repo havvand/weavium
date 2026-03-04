@@ -1,5 +1,6 @@
 import WeaviumLandingLogo from "../../assets/WeaviumLandingLogo.png";
 
+
 export function LandingHero({ setView }) {
     return (
         <div style={{ maxWidth: '100%', margin: '0 auto', width: '100%', flex: 1, backgroundColor: '#262424'}}>
@@ -10,7 +11,7 @@ export function LandingHero({ setView }) {
             />
 
             <h2 style={{ color: '#2c3e50', marginBottom: '15px' }}></h2>
-        <div style={{
+        <div className={'box'} style={{
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
@@ -64,7 +65,7 @@ export function LandingHero({ setView }) {
                 </button>
             </div>
 
-            <div style={{ marginTop: '60px', display: 'flex', gap: '40px', color: '#495057', textAlign: 'left', maxWidth: '100%' }}>
+            <div style={{ marginTop: '60px', display: 'flex', gap: '40px', color: '#495057', textAlign: 'left', maxWidth: '100%'  } }>
                 <div style={{ flex: 1 }}>
                     <h3 style={{ borderBottom: '2px solid #FFD700', display: 'inline-block', paddingBottom: '5px' }}>1. Anchor</h3>
                     <p style={{ fontSize: '0.9em' }}>Define your core Theory or Framework to establish a gravitational center for your thoughts.</p>

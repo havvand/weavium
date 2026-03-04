@@ -16,45 +16,52 @@ const UPDATE_NODE = gql`
     }
 `;
 export function NodeInspector({ node, onClose, nodeColors }) {
-    // Setting the setIsEditing to false, and setEditData to ''
     const [isEditing, setIsEditing] = useState(false);
+    const [showConfirm, setShowConfirm] = useState(false); // NEW: Tracks if we are confirming deletion
+    const [errorMsg, setErrorMsg] = useState(''); // NEW: Tracks errors safely without alert()
     const [editData, setEditData] = useState({ title: '', description: '', type: '' });
 
-    // Reset edit state when a new node is clicked by setting setIsEditing to false again and
-    // if another node is clicked replace with new node data.
+    // Reset states when a new node is clicked
     useEffect(() => {
         setIsEditing(false);
+        setShowConfirm(false);
+        setErrorMsg('');
         if (node) {
             setEditData({ title: node.name, description: node.description || '', type: node.type });
         }
-    }, [node]); // Run everytime a new node is passed
+    }, [node]);
 
-    const [deleteNode] = useMutation(DELETE_NODE, {
+    // Include GetNodesSimple and GetNodes so deleting from the graph also updates the Quick Capture lists!
+    const [deleteNode, { loading: isDeleting }] = useMutation(DELETE_NODE, {
         refetchQueries: ['GetNodesGraph'],
-        onCompleted: () => onClose() // Close and setSelectedNode = null after it disappears from DB
+        onCompleted: () => {
+            setShowConfirm(false);
+            onClose();
+        },
+        onError: (err) => setErrorMsg("Failed to delete: " + err.message)
     });
 
     const [updateNode] = useMutation(UPDATE_NODE, {
         refetchQueries: ['GetNodesGraph'],
         onCompleted: () => {
             setIsEditing(false);
-            onClose(); // Close and setSelectedNode = null after update
-        }
+            onClose();
+        },
+        onError: (err) => setErrorMsg("Failed to update: " + err.message)
     });
 
     if (!node) return null;
 
     const nodeColor = nodeColors[node.type] || '#333';
 
-    const handleDelete = () => {
-        if (window.confirm("Are you sure you want to delete this thought? It will sever all connected links.")) {
-            deleteNode({ variables: { id: node.id } }); // Passing the node.id to the deleteNode function
-        }
+    // Trigger the actual mutation
+    const confirmDelete = () => {
+        deleteNode({ variables: { id: node.id } });
     };
 
     const handleSave = () => {
         updateNode({
-            variables: { // Passing all the needed variables to the updateNode function.
+            variables: {
                 id: node.id,
                 title: editData.title,
                 description: editData.description,
@@ -70,7 +77,7 @@ export function NodeInspector({ node, onClose, nodeColors }) {
         <div style={{
             position: 'absolute', top: '20px', right: '20px', width: '320px', maxHeight: '550px',
             overflowY: 'auto', backgroundColor: 'rgba(255, 255, 255, 0.95)', padding: '20px',
-            borderRadius: '8px', boxShadow: '0 4px 15px rgba(0,0,0,0.2)', borderLeft: `5px solid ${nodeColor}`,
+            borderRadius: '8px', boxShadow: '0 4px 15px rgba(0,0,0,0.5)', borderLeft: `5px solid ${nodeColor}`,
             zIndex: 100, textAlign: 'left'
         }}>
 
@@ -87,10 +94,29 @@ export function NodeInspector({ node, onClose, nodeColors }) {
                         {node.description || <i style={{color: '#aaa'}}>No description provided.</i>}
                     </p>
 
-                    <div style={{ display: 'flex', gap: '10px', borderTop: '1px solid #eee', paddingTop: '15px' }}>
-                        <button onClick={() => setIsEditing(true)} style={{ ...btnStyle, backgroundColor: '#f0f0f0', color: '#333', flex: 1 }}>✏️ Edit</button>
-                        <button onClick={handleDelete} style={{ ...btnStyle, backgroundColor: '#ffebee', color: '#d32f2f', flex: 1 }}>🗑️ Delete</button>
-                    </div>
+                    {/* Render errors safely without alert() */}
+                    {errorMsg && <p style={{ color: '#d32f2f', fontSize: '0.85em', padding: '10px', backgroundColor: '#ffebee', borderRadius: '4px' }}>{errorMsg}</p>}
+
+                    {/* NEW: Custom confirmation UI */}
+                    {showConfirm ? (
+                        <div style={{ marginTop: '15px', padding: '10px', backgroundColor: '#fff3e0', border: '1px solid #ffe0b2', borderRadius: '4px' }}>
+                            <p style={{ margin: '0 0 10px 0', fontSize: '0.9em', color: '#e65100', fontWeight: 'bold' }}>Delete this thought?</p>
+                            <div style={{ display: 'flex', gap: '10px' }}>
+                                <button onClick={confirmDelete} disabled={isDeleting} style={{ ...btnStyle, backgroundColor: '#d32f2f', color: 'white', flex: 1 }}>
+                                    {isDeleting ? 'Deleting...' : 'Yes, Delete'}
+                                </button>
+                                <button onClick={() => setShowConfirm(false)} disabled={isDeleting} style={{ ...btnStyle, backgroundColor: '#f0f0f0', color: '#333', flex: 1 }}>
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    ) : (
+                        // Default buttons
+                        <div style={{ display: 'flex', gap: '10px', borderTop: '1px solid #eee', paddingTop: '15px' }}>
+                            <button onClick={() => setIsEditing(true)} style={{ ...btnStyle, backgroundColor: '#f0f0f0', color: '#333', flex: 1 }}>✏️ Edit</button>
+                            <button onClick={() => setShowConfirm(true)} style={{ ...btnStyle, backgroundColor: '#ffebee', color: '#d32f2f', flex: 1 }}>🗑️ Delete</button>
+                        </div>
+                    )}
                 </>
             ) : (
                 // --- EDIT MODE ---
@@ -123,6 +149,8 @@ export function NodeInspector({ node, onClose, nodeColors }) {
                         rows={5}
                         style={inputStyle}
                     />
+
+                    {errorMsg && <p style={{ color: '#d32f2f', fontSize: '0.85em', padding: '10px', backgroundColor: '#ffebee', borderRadius: '4px' }}>{errorMsg}</p>}
 
                     <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
                         <button onClick={handleSave} style={{ ...btnStyle, backgroundColor: '#4CAF50', color: 'white', flex: 1 }}>💾 Save</button>

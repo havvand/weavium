@@ -23,7 +23,7 @@ const GET_NODES_FOR_GRAPH = gql`
 
 // Map Ubiquitious language to colors
 const NODE_COLORS = {
-    THEORY: '#FFD700',      // Gold (The Anchor)
+    THEORY: '#cca31b',      // Gold (The Anchor)
     AXIOM: '#4CAF50',       // Green (Solid foundation)
     EVIDENCE: '#2196F3',    // Blue (Data)
     HYPOTHESIS: '#9C27B0',  // Purple (Speculative)
@@ -117,7 +117,7 @@ export function WeaveGraph() {
     if (error) return <p>Error loading graph: {error.message}</p>
 
     return (
-        <div style={{ position: 'relative', border: '2px solid #2c3e50', borderRadius: '8px', overflow: 'hidden', height: '600px', backgroundColor: '#fcfcfc' }}>
+        <div style={{ position: 'relative', border: '2px solid #2c3e50', borderRadius: '8px', overflow: 'hidden', height: '900px', backgroundColor: '#7b8486' }}>
             <ForceGraph2D
                 ref={fgRef}
                 graphData={graphData}
@@ -143,7 +143,9 @@ export function WeaveGraph() {
                     ctx.beginPath();
                     ctx.arc(node.x, node.y, node.val / globalScale, 0, 2 * Math.PI, false);
                     ctx.fillStyle = NODE_COLORS[node.type] || '#333';
+                    ctx.strokeStyle = '#252c2c'
                     ctx.fill();
+                    ctx.stroke();
 
                     // Draw Text
                     ctx.textAlign = 'center';

@@ -84,12 +84,12 @@ export function LinkNodesForm() {
             <h3>Connect Thoughts</h3>
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
 
-                <div style={{ display: 'flex', gap: '10px' }}>
+                <div style={{ display: 'flex', gap: '10px'}}>
                     {/* Source Node */}
                     <select
                         value={sourceId}
                         onChange={(e) => setSourceId(e.target.value)}
-                        style={{ padding: '8px', flex: 1 }}
+                        style={{ padding: '8px', flex: 1, maxWidth: '80%' }}
                         required
                     >
                         <option value="">Select Source Node...</option>
@@ -100,7 +100,7 @@ export function LinkNodesForm() {
                     <select
                         value={type}
                         onChange={(e) => setType(e.target.value)}
-                        style={{ padding: '8px', width: '120px' }}
+                        style={{ padding: '8px', width: '20%'}}
                     >
                         <optgroup label="Logical">
                             <option value="SUPPORTS">SUPPORTS</option>

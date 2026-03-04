@@ -1,3 +1,5 @@
+import WeaviumWLogoV1 from "../../assets/WeaviumWLogoV1.svg";
+
 export function Navbar({currentView, setView}) {
     const navStyle = {
         display: 'flex',
@@ -35,7 +37,12 @@ export function Navbar({currentView, setView}) {
     return (
         <nav style={navStyle}>
             <div style={logoStyle} onClick={() => setView('HOME')}>
-                🕸️ weavium
+                <img
+                    src = {WeaviumWLogoV1} alt=""
+
+                    style={{ alignSelf: 'center',  width: 40, height: 40, paddingLeft: 5 }}
+                />
+                <a > weavium </a>
             </div>
 
             <div style={{ display: 'flex', gap: '20px' }}>

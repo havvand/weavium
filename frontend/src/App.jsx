@@ -14,7 +14,7 @@ import { CreateTheoryTemplate } from "./components/CreateTheoryTemplate.jsx";
 import WeaviumLandingLogo from "./assets/WeaviumLandingLogo.png";
 
 function App() {
-    const [view, setView] = useState('HOME'); // Default to Home view
+    const [view, setView] = useState('LANDINGHERO'); // Default to Home view
 
 
     return (
@@ -23,9 +23,9 @@ function App() {
 
             {/* Main Content Container */}
             <div style={{ maxWidth: '100%', margin: '0 auto', width: '100%', flex: 1, backgroundColor: '#262424'}}>
-                {view === 'HOME' && (
+                {(view === 'LANDINGHERO' || view === 'HOME') && (
                     <div style={{ marginTop: '20px'}}>
-                        <LandingHero />
+                        <LandingHero setView={setView} />
                     </div>
                 )}
                 {/*View Routing*/}
