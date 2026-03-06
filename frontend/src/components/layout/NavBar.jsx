@@ -25,11 +25,11 @@ export function Navbar({currentView, setView}) {
     const buttonStyle = (isActive) => ({
         background: 'none',
         border: 'none',
-        color: isActive ? '#FFD700' : 'white',
+        color: isActive ? '#c7efef' : 'white',
         fontSize: '1em',
         cursor: 'pointer',
         padding: '8px 15px',
-        borderBottom: isActive ? '2px solid #FFD700' : '2px solid transparent',
+        borderBottom: isActive ? '2px solid #c7efef' : '2px solid transparent',
         transition: 'all 0.2s ease',
         fontWeight: isActive ? 'bold' : 'normal'
     });
@@ -40,9 +40,9 @@ export function Navbar({currentView, setView}) {
                 <img
                     src = {WeaviumWLogoV1} alt=""
 
-                    style={{ alignSelf: 'center',  width: 40, height: 40, paddingLeft: 5 }}
+                    style={{ alignSelf: 'center',  width: 40, height: 40, paddingLeft: 10 }}
                 />
-                <a > weavium </a>
+                <a style={{ paddingBottom: 5 }}> weavium </a>
             </div>
 
             <div style={{ display: 'flex', gap: '20px' }}>

@@ -140,7 +140,7 @@ export function CreateTheoryTemplate() {
 
     return (
         <div style={{ padding: '25px', border: '2px solid #2c3e50', borderRadius: '8px', marginBottom: '20px', textAlign: 'left', backgroundColor: '#fff', color: '#333' }}>
-            <h2 style={{ color: '#2c3e50', marginTop: 0 }}>🧠 Initialize New Theory</h2>
+            <h2 style={{ color: '#2c3e50', marginTop: 0 }}>Initialize New Theory</h2>
             <p style={{ color: '#666', fontSize: '0.9em', marginBottom: '20px' }}>
                 Define your overarching framework and map out the specific evidence supporting each of your core claims.
             </p>

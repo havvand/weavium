@@ -1,4 +1,4 @@
-import {useMemo, useCallback, useRef, useState} from 'react';
+import {useMemo, useCallback, useRef, useState, useEffect} from 'react';
 import {useQuery} from "@apollo/client/react";
 import {gql} from "@apollo/client"
 import ForceGraph2D from 'react-force-graph-2d';
@@ -21,19 +21,17 @@ const GET_NODES_FOR_GRAPH = gql`
     }
 `;
 
-// Map Ubiquitious language to colors
 const NODE_COLORS = {
-    THEORY: '#cca31b',      // Gold (The Anchor)
-    AXIOM: '#4CAF50',       // Green (Solid foundation)
-    EVIDENCE: '#2196F3',    // Blue (Data)
-    HYPOTHESIS: '#9C27B0',  // Purple (Speculative)
-    DERIVATION: '#FF9800',  // Orange (Logical steps)
-    OBJECTION: '#F44336',   // Red (Conflict)
-    METAPHOR: '#00BCD4',    // Cyan
-    CITATION: '#9E9E9E'     // Grey
+    THEORY: '#FFD700',
+    AXIOM: '#4CAF50',
+    EVIDENCE: '#2196F3',
+    HYPOTHESIS: '#9C27B0',
+    DERIVATION: '#FF9800',
+    OBJECTION: '#F44336',
+    METAPHOR: '#00BCD4',
+    CITATION: '#9E9E9E'
 };
 
-// Edge colors based on logic
 const LINK_COLORS = {
     PROPOSES: '#FFD700',
     EXPLORES: '#BBBBBB',
@@ -43,7 +41,6 @@ const LINK_COLORS = {
     RELATED_TO: '#2196F3'
 };
 
-// HELPER: Truncate long strings for the canvas
 const MAX_LABEL_LENGTH = 22;
 const truncateText = (text) => {
     if (!text) return "Unknown";
@@ -51,20 +48,27 @@ const truncateText = (text) => {
     return text.substring(0, MAX_LABEL_LENGTH) + "...";
 };
 
-
 export function WeaveGraph() {
     const fgRef = useRef();
-    // NEW STATE: Track which node is currently clicked for the Inspection Panel
     const [selectedNode, setSelectedNode] = useState(null);
-    const { loading, error, data } = useQuery(GET_NODES_FOR_GRAPH);
+    const { loading, error, data = {} } = useQuery(GET_NODES_FOR_GRAPH);
 
-    // Transform GraphQL Tree into Flat Graph Object using useMemo - performance
+    // Auto-resize graph when sidebar opens/closes
+    useEffect(() => {
+        if (fgRef.current) {
+            // Slight delay to allow CSS flexbox to transition before forcing a canvas resize
+            setTimeout(() => {
+                const container = document.getElementById('graph-container');
+                if (container) {
+                    fgRef.current.zoomToFit(400, 50);
+                }
+            }, 50);
+        }
+    }, [selectedNode]);
+
     const graphData = useMemo(() => {
         const rawNodes = data?.nodes;
-
-        if (!Array.isArray(rawNodes)) {
-            return { nodes: [], links: [] };
-        }
+        if (!Array.isArray(rawNodes)) return { nodes: [], links: [] };
 
         const nodes = [];
         const links = [];
@@ -74,12 +78,10 @@ export function WeaveGraph() {
                 id: node.id,
                 name: node.title,
                 type: node.type,
-                description: node.description, // Pass description to the graph object
+                description: node.description,
                 val: node.type === 'THEORY' ? 20 : 10
             });
 
-
-            // Add Links
             const rawLinks = node?.links;
             if (Array.isArray(rawLinks)) {
                 rawLinks.forEach(link => {
@@ -95,71 +97,88 @@ export function WeaveGraph() {
             }
         });
 
-        return {nodes, links };
+        return { nodes, links };
     }, [data]);
 
-    // Center camera on a node when clicked
     const handleNodeClick = useCallback(node => {
+        setSelectedNode(node);
         if (fgRef.current) {
-            const cameraOffsetX = 55;
-            fgRef.current.centerAt(node.x + cameraOffsetX, node.y, 1000);
+            // Center the camera on the node. We offset X slightly to account for the sidebar.
+            fgRef.current.centerAt(node.x, node.y, 1000);
             fgRef.current.zoom(8, 2000);
         }
-        // 2. Open the Inspection Panel
-        setSelectedNode(node);
     }, [fgRef]);
 
     const handleBackgroundClick = useCallback(() => {
         setSelectedNode(null);
     }, []);
 
-    if (loading) return <p> Simulating </p>
-    if (error) return <p>Error loading graph: {error.message}</p>
+    if (loading) return <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', color: '#aaa'}}>Simulating physics...</div>;
+    if (error) return <div style={{color: '#F44336', padding: '20px'}}>Error loading graph: {error.message}</div>;
 
     return (
-        <div style={{ position: 'relative', border: '2px solid #2c3e50', borderRadius: '8px', overflow: 'hidden', height: '900px', backgroundColor: '#7b8486' }}>
-            <ForceGraph2D
-                ref={fgRef}
-                graphData={graphData}
-                nodeLabel="name"
-                nodeColor={node => NODE_COLORS[node.type] || '#333'}
-                nodeRelSize={6}
-                linkLabel="name"
-                linkColor={link => link.color}
-                linkDirectionalArrowLength={3.5}
-                linkDirectionalArrowRelPos={1}
-                onNodeClick={handleNodeClick}
-                onBackgroundClick={handleBackgroundClick} // Close panel when clicking empty space
+        // Full height flex container (assuming the navbar is roughly 70px tall)
+        <div style={{ display: 'flex', width: '100%', height: 'calc(100vh - 120px)', backgroundColor: '#1e1e1e', borderRadius: '8px', overflow: 'hidden', border: '1px solid #444' }}>
 
+            {/* LEFT PANE: Graph Canvas (Takes up remaining space) */}
+            <div id="graph-container" style={{ flex: 1, position: 'relative', width: '80%' }}>
+                <ForceGraph2D
+                    ref={fgRef}
+                    graphData={graphData}
+                    nodeLabel={() => ''}
+                    nodeColor={node => NODE_COLORS[node?.type] || '#333'}
+                    nodeRelSize={6}
+                    linkLabel="name"
+                    linkColor={link => link?.color || '#888'}
+                    linkDirectionalArrowLength={3.5}
+                    linkDirectionalArrowRelPos={1}
+                    onNodeClick={handleNodeClick}
+                    onBackgroundClick={handleBackgroundClick}
 
-                // Custom canvas drawing to show text labels under the nodes
-                nodeCanvasObject={(node, ctx, globalScale) => {
-                    const label = truncateText(node.name);
-                    const fontSize = 12 / globalScale;
-                    ctx.font = `${fontSize}px Sans-Serif`;
-                    //const bckgDimensions = [label, fontSize].map(n => n + fontSize * 0.2);
+                    nodeCanvasObject={(node, ctx, globalScale) => {
+                        const label = truncateText(node?.name);
+                        const fontSize = 12 / globalScale;
+                        ctx.font = `${fontSize}px Sans-Serif`;
 
-                    // Draw Node Circle
-                    ctx.beginPath();
-                    ctx.arc(node.x, node.y, node.val / globalScale, 0, 2 * Math.PI, false);
-                    ctx.fillStyle = NODE_COLORS[node.type] || '#333';
-                    ctx.strokeStyle = '#252c2c'
-                    ctx.fill();
-                    ctx.stroke();
+                        ctx.beginPath();
+                        ctx.arc(node.x, node.y, (node.val || 10) / globalScale, 0, 2 * Math.PI, false);
 
-                    // Draw Text
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    ctx.fillStyle = '#111';
-                    ctx.fillText(label, node.x, node.y + (node.val / globalScale) + (fontSize));
-                }}
-            />
+                        // Highlight selected node with a white stroke
+                        if (selectedNode && selectedNode.id === node.id) {
+                            ctx.lineWidth = 3 / globalScale;
+                            ctx.strokeStyle = '#88c780';
+                            ctx.stroke();
+                        }
 
-            <NodeInspector
-                node={selectedNode}
-                onClose={() => setSelectedNode(null)}
-                nodeColors={NODE_COLORS}
-            />
+                        ctx.fillStyle = NODE_COLORS[node?.type] || '#333';
+                        ctx.fill();
+
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+                        ctx.fillText(label, node.x, node.y + ((node.val || 10) / globalScale) + (fontSize));
+                    }}
+                />
+            </div>
+
+            {/* RIGHT PANE: Full Height Sidebar (Takes up exactly 33.33% of the width) */}
+            {selectedNode && (
+                <div style={{
+                    width: '33.33%',
+                    minWidth: '350px',
+                    borderLeft: '1px solid #444',
+                    backgroundColor: '#262424', // Matching your App background
+                    display: 'flex',
+                    flexDirection: 'column'
+                }}>
+                    <NodeInspector
+                        node={selectedNode}
+                        onClose={() => setSelectedNode(null)}
+                        nodeColors={NODE_COLORS}
+                    />
+                </div>
+            )}
+
         </div>
     );
 }
