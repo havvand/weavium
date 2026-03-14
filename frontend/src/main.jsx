@@ -1,22 +1,29 @@
 import React from 'react'
-import './index.css'
-import App from './App.jsx'
-import {ApolloClient, ApolloLink, HttpLink, InMemoryCache} from "@apollo/client";
-import { ApolloProvider } from "@apollo/client/react";
 import { createRoot } from 'react-dom/client'
+import App from './App.jsx'
+import './index.css'
+import { ApolloClient, InMemoryCache, HttpLink } from '@apollo/client';
+import { ApolloProvider } from '@apollo/client/react';
+import { AuthProvider } from './context/AuthContext.jsx';
 
-const httpLink = 'http://localhost:8080/graphql';
+// CHANGE THIS: Use a relative path.
+// Vite will see '/graphql' and proxy it to port 8080.
+const httpLink = new HttpLink({
+    uri: '/graphql',
+    credentials: 'include'
+});
 
 const client = new ApolloClient({
-    link: new HttpLink({uri: httpLink}), // Springboot backend
-    cache: new InMemoryCache(), // Caches results - no unnecessary re-fetch
-})
+    link: httpLink,
+    cache: new InMemoryCache()
+});
 
-// Wrap the App
 createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-      <ApolloProvider client={client}>
-          <App />
-      </ApolloProvider>
-  </React.StrictMode>,
+    <React.StrictMode>
+        <AuthProvider>
+            <ApolloProvider client={client}>
+                <App />
+            </ApolloProvider>
+        </AuthProvider>
+    </React.StrictMode>,
 )

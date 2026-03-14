@@ -145,8 +145,8 @@ export function WeaveGraph() {
 
                         // Highlight selected node with a white stroke
                         if (selectedNode && selectedNode.id === node.id) {
-                            ctx.lineWidth = 3 / globalScale;
-                            ctx.strokeStyle = '#88c780';
+                            ctx.lineWidth = 6 / globalScale;
+                            ctx.strokeStyle = '#ffffff';
                             ctx.stroke();
                         }
 

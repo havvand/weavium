@@ -3,14 +3,13 @@ import WeaviumLandingLogo from "../../assets/WeaviumLandingLogo.png";
 
 export function LandingHero({ setView }) {
     return (
-        <div style={{ maxWidth: '100%', margin: '0 auto', width: '100%', flex: 1, backgroundColor: '#262424'}}>
-            <img
+        <div style={{ maxWidth: '100%', margin: '0 auto', width: '100%', flex: 1, backgroundColor: '#1e1e1e'}}>
+            <img className={'logo'}
                 src = {WeaviumLandingLogo} alt=""
 
                 style={{ alignSelf: 'center', width: '100%', height: '100%', maxWidth: 900, maxHeight: 900, }}
             />
 
-            <h2 style={{ color: '#2c3e50', marginBottom: '15px' }}></h2>
         <div className={'box'} style={{
             display: 'flex',
             flexDirection: 'column',

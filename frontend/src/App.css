@@ -5,17 +5,22 @@
   text-align: center;
 }
 
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.3;
+  }
+}
+
 .logo {
   height: 6em;
   padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+  animation: fadeOut, opacity 0.2;
+  animation-delay: 2s;
+  animation-duration: 3s;
+  animation-fill-mode: forwards;
 }
 
 @keyframes logo-spin {

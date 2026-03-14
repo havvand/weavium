@@ -38,6 +38,10 @@ dependencies {
 	testImplementation("org.testcontainers:testcontainers-junit-jupiter:2.0.2")
 	testImplementation("org.testcontainers:testcontainers-neo4j:2.0.2")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+	// Security
+	implementation("org.springframework.boot:spring-boot-starter-security")
+	// JWT (Auth0's library is the industry standard and easiest to use)
+	implementation("com.auth0:java-jwt:4.4.0")
 }
 
 tasks.generateJava {

@@ -3,6 +3,7 @@ type Query {
     nodes: [WeaveNode]!
     # Fetch a single node by Id
     nodeById(id: ID!): WeaveNode
+    me: User
 }
 
 type Mutation {
@@ -15,6 +16,12 @@ type Mutation {
     deleteNode(id: ID!): Boolean
 }
 
+type User {
+    id: ID!
+    username: String!
+    email: String!
+}
+
 type WeaveNode {
     id: ID!
     title: String!
@@ -24,6 +31,7 @@ type WeaveNode {
     links:[WeaveLink]
     createdAt: String
     updatedAt: String
+    owner: User
 }
 
 type WeaveLink {
