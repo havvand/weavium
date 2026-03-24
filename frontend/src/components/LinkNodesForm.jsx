@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import {useEffect, useState} from 'react';
 import { useMutation, useQuery } from "@apollo/client/react";
 import { gql } from "@apollo/client";
 
@@ -46,10 +46,16 @@ const GET_NODES_FULL = gql`
     }
 `;
 
-export function LinkNodesForm() {
+export function LinkNodesForm({ prefilledSourceId, isDark }) {
     const [sourceId, setSourceId] = useState('');
     const [targetId, setTargetId] = useState('');
     const [type, setType] = useState('SUPPORTS');
+
+    useEffect(() => {
+        if (prefilledSourceId) {
+            setSourceId(prefilledSourceId);
+        }
+    }, [prefilledSourceId]);
 
     const { data: nodeData } = useQuery(GET_NODES_SIMPLE);
 
@@ -72,35 +78,41 @@ export function LinkNodesForm() {
 
     if (!nodeData) return null;
 
+    const containerStyle = isDark
+        ? { padding: '20px', backgroundColor: '#262424', borderRadius: '8px', textAlign: 'left', color: '#fff' }
+        : { padding: '20px', border: '1px solid #ccc', borderRadius: '8px', marginBottom: '20px', textAlign: 'left', backgroundColor: '#f9f9f9' };
+
+    const inputStyle = isDark
+        ? { padding: '8px', border: '1px solid #555', borderRadius: '4px', backgroundColor: '#363434', color: '#fff' }
+        : { padding: '8px', border: '1px solid #ddd', borderRadius: '4px' };
+
     return (
         <div style={{
-            padding: '20px',
-            border: '1px solid #ccc',
-            borderRadius: '8px',
-            marginBottom: '20px',
-            textAlign: 'left',
-            backgroundColor: '#f9f9f9'
+            containerStyle
         }}>
-            <h3>Connect Thoughts</h3>
+            <h3 style={{ marginTop: 0 }}>{isDark ? '🔗 Attach Thought' : 'Connect Thoughts'}</h3>
+
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
 
-                <div style={{ display: 'flex', gap: '10px'}}>
-                    {/* Source Node */}
-                    <select
-                        value={sourceId}
-                        onChange={(e) => setSourceId(e.target.value)}
-                        style={{ padding: '8px', flex: 1, maxWidth: '80%' }}
-                        required
-                    >
-                        <option value="">Select Source Node...</option>
-                        {nodeData.nodes.map(n => <option key={n.id} value={n.id}>{n.title}</option>)}
-                    </select>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                    {/* ONLY show the Source dropdown if we DON'T have a prefilled source */}
+                    {!prefilledSourceId && (
+                        <select
+                            value={sourceId}
+                            onChange={(e) => setSourceId(e.target.value)}
+                            style={{ ...inputStyle, flex: 1, width: '100%' }}
+                            required
+                        >
+                            <option value="">Select Source Node...</option>
+                            {nodeData.nodes.map(n => <option key={n.id} value={n.id}>{n.title}</option>)}
+                        </select>
+                    )}
 
                     {/* Relationship Type */}
                     <select
                         value={type}
                         onChange={(e) => setType(e.target.value)}
-                        style={{ padding: '8px', width: '20%'}}
+                        style={!prefilledSourceId ? { padding: '8px', width: '20%'} : { padding: '8px', width: '100%'} }
                     >
                         <optgroup label="Logical">
                             <option value="SUPPORTS">SUPPORTS</option>
@@ -117,18 +129,22 @@ export function LinkNodesForm() {
                     </select>
                 </div>
 
-                {/* Target Node */}
                 <select
                     value={targetId}
                     onChange={(e) => setTargetId(e.target.value)}
-                    style={{ padding: '8px', width: '100%' }}
+                    style={{ ...inputStyle, width: '100%' }}
                     required
                 >
                     <option value="">Select Target Node...</option>
-                    {nodeData.nodes.map(n => <option key={n.id} value={n.id}>{n.title}</option>)}
+                    {/* Filter out the source node so users can't link a node to itself! */}
+                    {nodeData.nodes.filter(n => n.id !== sourceId).map(n =>
+                        <option key={n.id} value={n.id}>{n.title}</option>
+
+                    )}
+
                 </select>
 
-                <button type="submit" disabled={loading} style={{ padding: '10px', cursor: 'pointer', backgroundColor: '#646cff', color: 'white', border: 'none', borderRadius: '4px' }}>
+                <button type="submit" disabled={loading} style={{ padding: '10px', cursor: 'pointer', backgroundColor: '#646cff', color: 'white', border: 'none', borderRadius: '4px', fontWeight: 'bold' }}>
                     {loading ? 'Linking...' : 'Create Connection'}
                 </button>
 

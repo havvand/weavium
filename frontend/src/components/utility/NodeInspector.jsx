@@ -1,6 +1,7 @@
 import {gql} from "@apollo/client";
 import { useState, useEffect } from 'react';
 import { useMutation } from "@apollo/client/react";
+import {LinkNodesForm} from "../LinkNodesForm.jsx";
 
 const DELETE_NODE = gql`
     mutation DeleteNode($id: ID!) {
@@ -99,7 +100,7 @@ export function NodeInspector({ node, onClose, nodeColors }) {
             <div style={{ display: 'flex', borderBottom: '1px solid #444', marginBottom: '20px' }}>
                 <div style={tabStyle(activeTab === 'INFO')} onClick={() => setActiveTab('INFO')}>Details</div>
                 <div style={tabStyle(activeTab === 'CONNECTIONS')} onClick={() => setActiveTab('CONNECTIONS')}>Connections</div>
-                <div style={tabStyle(activeTab === 'AUTHOR')} onClick={() => setActiveTab('AUTHOR')}>Author</div>
+                <div style={tabStyle(activeTab === 'OWNER')} onClick={() => setActiveTab('OWNER')}>Author</div>
 
             </div>
 
@@ -113,8 +114,8 @@ export function NodeInspector({ node, onClose, nodeColors }) {
                         {!isEditing ? (
                             // READ MODE
                             <>
-                                <h4 style={{ color: '#aaa', margin: '0 0 10px 0', fontSize: '0.85em', textTransform: 'uppercase' }}>Description</h4>
-                                <p style={{ fontSize: '1em', color: '#ccc', lineHeight: '1.6', marginBottom: '30px', whiteSpace: 'pre-wrap' }}>
+                                <h4 style={{ color: '#aaa', margin: '0 0 10px 0', fontSize: '1.1em', textTransform: 'uppercase' }}>Description</h4>
+                                <p style={{ fontSize: '1em', color: '#ccc', lineHeight: '1.6', marginBottom: '30px', whiteSpace: 'pre-wrap', textAlign: 'left'}}>
                                     {node.description || <i style={{color: '#666'}}>No description provided.</i>}
                                 </p>
 
@@ -182,26 +183,21 @@ export function NodeInspector({ node, onClose, nodeColors }) {
                             Manage relationships or attach new thoughts to this node.
                         </p>
 
-                        {/* Placeholder for future Idea 1 feature */}
-                        <div style={{ padding: '20px', backgroundColor: '#363434', border: '1px dashed #666', borderRadius: '6px', textAlign: 'center' }}>
-                            <span style={{ fontSize: '2em', display: 'block', marginBottom: '10px' }}>🔗</span>
-                            <p style={{ margin: '0 0 15px 0', color: '#ccc' }}>Ready to grow the web.</p>
-                            <button style={{ ...btnStyle, backgroundColor: nodeColor, color: '#111', width: '100%' }}>
-                                + Attach New Thought
-                            </button>
-                        </div>
+                        {/* The dynamically styled, pre-filled form! */}
+                        <LinkNodesForm prefilledSourceId={node.id} isDark={true} />
+
                     </div>
                 )}
 
-                {activeTab === 'AUTHOR' && (
+                {activeTab === 'OWNER' && (
                     <div>
                         <p style={{ color: '#aaa', fontSize: '0.9em', marginBottom: '20px' }}>
-                            Author Information
+                            Owner Information
                         </p>
 
                         {/* Placeholder for information */}
                         <div style={{ padding: '20px', marginBottom: '10px', backgroundColor: '#363434', border: '1px dashed #666', borderRadius: '6px', textAlign: 'center' }}>
-
+                            {node.owner.username || <i style={{color: '#666'}}>No description provided.</i>}
                         </div>
                         <div style={{ padding: '20px', backgroundColor: '#363434', border: '1px dashed #666', borderRadius: '6px', textAlign: 'center' }}>
 

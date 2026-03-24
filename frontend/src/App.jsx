@@ -30,16 +30,14 @@ function App() {
                 {(view === 'LANDINGHERO' || view === 'HOME') && (
                     <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
 
-
-                        {/* THE FIX: You must pass setView={setView} down as a prop here! */}
                         <LandingHero setView={setView} />
 
                     </div>
                 )}
 
                 {view === 'GRAPH' && (
-                    <div style={{ marginTop: '20px', padding: '20px' }}>
-                        <h2 style={{ color: '#FFD700', marginBottom: '15px', textAlign: 'center' }}>The Weave</h2>
+                    <div style={{ padding: '1px' }}>
+                        <h2 className={'w_font'} style={{ fontSize: '1.5em', color: '#FFD700', margin: '5px', textAlign: 'center' }}>The Weave</h2>
                         <WeaveGraph />
                     </div>
                 )}

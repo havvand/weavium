@@ -6,8 +6,8 @@ import { ApolloClient, InMemoryCache, HttpLink } from '@apollo/client';
 import { ApolloProvider } from '@apollo/client/react';
 import { AuthProvider } from './context/AuthContext.jsx';
 
-// CHANGE THIS: Use a relative path.
-// Vite will see '/graphql' and proxy it to port 8080.
+
+// Origin set in Vite.config
 const httpLink = new HttpLink({
     uri: '/graphql',
     credentials: 'include'

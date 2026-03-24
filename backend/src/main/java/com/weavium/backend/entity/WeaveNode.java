@@ -6,10 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.neo4j.core.schema.GeneratedValue;
-import org.springframework.data.neo4j.core.schema.Id;
-import org.springframework.data.neo4j.core.schema.Node;
-import org.springframework.data.neo4j.core.schema.Relationship;
+import org.springframework.data.neo4j.core.schema.*;
 
 import java.time.Instant;
 import java.util.*;
@@ -32,6 +29,10 @@ public class WeaveNode {
     private NodeType type;
 
     private Set<String> tags = new HashSet<>();
+
+    // Link to the User who created the Node
+    @Relationship(value = "CREATED_BY", direction = Relationship.Direction.OUTGOING)
+    private UserNode owner;
 
 
     @Relationship(type = "LINKS_TO", direction = Relationship.Direction.OUTGOING)

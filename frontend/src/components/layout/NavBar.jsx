@@ -48,7 +48,7 @@ export function Navbar({ currentView, setView, onOpenAuth }) {
                      height={'25px'}
 
                 />
-                <h className={'w_font'}> weavium </h >
+                <h1 className={'w_font'} style={{ margin: '0px'}}> weavium </h1 >
             </div>
 
             <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>

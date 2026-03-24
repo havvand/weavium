@@ -3,6 +3,7 @@ import {useQuery} from "@apollo/client/react";
 import {gql} from "@apollo/client"
 import ForceGraph2D from 'react-force-graph-2d';
 import {NodeInspector} from "./utility/NodeInspector.jsx";
+import {transformGraphData} from "./utility/transformGraphData.jsx";
 
 const GET_NODES_FOR_GRAPH = gql`
     query GetNodesGraph {
@@ -11,6 +12,9 @@ const GET_NODES_FOR_GRAPH = gql`
             title
             type
             description
+            owner {
+                username
+            }
             links {
                 type
                 target {
@@ -66,39 +70,10 @@ export function WeaveGraph() {
         }
     }, [selectedNode]);
 
-    const graphData = useMemo(() => {
-        const rawNodes = data?.nodes;
-        if (!Array.isArray(rawNodes)) return { nodes: [], links: [] };
-
-        const nodes = [];
-        const links = [];
-
-        rawNodes.forEach(node => {
-            nodes.push({
-                id: node.id,
-                name: node.title,
-                type: node.type,
-                description: node.description,
-                val: node.type === 'THEORY' ? 20 : 10
-            });
-
-            const rawLinks = node?.links;
-            if (Array.isArray(rawLinks)) {
-                rawLinks.forEach(link => {
-                    if (link?.target?.id) {
-                        links.push({
-                            source: node.id,
-                            target: link.target.id,
-                            name: link.type,
-                            color: LINK_COLORS[link.type] || '#ccc'
-                        });
-                    }
-                });
-            }
-        });
-
-        return { nodes, links };
-    }, [data]);
+    const graphData = useMemo( () =>
+    transformGraphData(data?.nodes, LINK_COLORS),
+        [data?.nodes, LINK_COLORS]
+    );
 
     const handleNodeClick = useCallback(node => {
         setSelectedNode(node);
@@ -117,11 +92,11 @@ export function WeaveGraph() {
     if (error) return <div style={{color: '#F44336', padding: '20px'}}>Error loading graph: {error.message}</div>;
 
     return (
-        // Full height flex container (assuming the navbar is roughly 70px tall)
-        <div style={{ display: 'flex', width: '100%', height: 'calc(100vh - 120px)', backgroundColor: '#1e1e1e', borderRadius: '8px', overflow: 'hidden', border: '1px solid #444' }}>
+        // Full height flex container
+        <div style={{ display: 'flex', position: 'relative', width: '100%', height: 'calc(100vh - 120px)', backgroundColor: '#1e1e1e', borderRadius: '8px', overflow: 'hidden', border: '1px solid #444' }}>
 
-            {/* LEFT PANE: Graph Canvas (Takes up remaining space) */}
-            <div id="graph-container" style={{ flex: 1, position: 'relative', width: '80%' }}>
+            {/* LEFT PANE: Graph Canvas */}
+            <div id="graph-container" style={{ flex: 1, position: 'relative', width: '80%', height: '100%' }}>
                 <ForceGraph2D
                     ref={fgRef}
                     graphData={graphData}
@@ -161,15 +136,20 @@ export function WeaveGraph() {
                 />
             </div>
 
-            {/* RIGHT PANE: Full Height Sidebar (Takes up exactly 33.33% of the width) */}
+            {/* RIGHT PANE: Full Height Sidebar */}
             {selectedNode && (
                 <div style={{
                     width: '33.33%',
                     minWidth: '350px',
+                    minHeight: '100%',
                     borderLeft: '1px solid #444',
                     backgroundColor: '#262424', // Matching your App background
                     display: 'flex',
-                    flexDirection: 'column'
+                    flexDirection: 'column',
+                    position: 'absolute',
+                    right: '0px',
+                    opacity: '95%',
+                    zIndex: 1000
                 }}>
                     <NodeInspector
                         node={selectedNode}
